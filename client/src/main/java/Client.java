@@ -1,31 +1,25 @@
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Util;
+import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) {
-        try (Communicator communicator = Util.initialize(args)) {
-            // Crear el proxy para el Maestro
+        try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args)) {
             com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("Master:default -p 10000");
             Demo.MasterPrx master = Demo.MasterPrx.checkedCast(base);
+
             if (master == null) {
                 throw new Error("Invalid proxy");
             }
 
-            // Definir el número total de puntos y la cantidad de trabajadores
-            int totalPoints = 1000000; // Cambia este valor según sea necesario
+            // Solicitar al usuario la cantidad de puntos
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Introduce el número total de puntos para la estimación de π: ");
+            int totalPoints = scanner.nextInt();
 
-            try {
-                double piEstimate = master.calculatePi(totalPoints);
-                System.out.printf("Estimación de π: %.6f%n", piEstimate);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            
-
-            // Imprimir el resultado
-            ;
-        } catch (Exception e) {
-            e.printStackTrace();
+            // Llamar al método calculatePi en el servidor
+            double piEstimate = master.calculatePi(totalPoints);
+            System.out.println("Estimación de π: " + piEstimate);
         }
     }
 }
