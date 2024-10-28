@@ -5,21 +5,32 @@ import java.util.Scanner;
 public class Client {
     public static void main(String[] args) {
         try (com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args)) {
-            com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("Master:default -p 10000");
-            Demo.MasterPrx master = Demo.MasterPrx.checkedCast(base);
+            Demo.MasterPrx masterProxy = Demo.MasterPrx.checkedCast(communicator.stringToProxy("Master:default -p 10000"));
 
-            if (master == null) {
-                throw new Error("Invalid proxy");
+            if (masterProxy == null) {
+                System.out.println("No se pudo conectar al Master.");
+                return;
             }
 
-            // Solicitar al usuario la cantidad de puntos
             Scanner scanner = new Scanner(System.in);
-            System.out.print("Introduce el número total de puntos para la estimación de π: ");
+            System.out.print("Ingrese el número total de puntos para la estimación de π: ");
             int totalPoints = scanner.nextInt();
 
-            // Llamar al método calculatePi en el servidor
-            double piEstimate = master.calculatePi(totalPoints);
+            // Iniciar el cronómetro
+            long startTime = System.currentTimeMillis();
+
+            double piEstimate = masterProxy.calculatePi(totalPoints);
+
+            // Detener el cronómetro
+            long endTime = System.currentTimeMillis();
+
+            // Calcular el tiempo de espera
+            long duration = endTime - startTime; // en milisegundos
+
             System.out.println("Estimación de π: " + piEstimate);
+            System.out.println("Tiempo de espera: " + duration + " milisegundos");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
